@@ -1,0 +1,66 @@
+body {
+    background: #0b97c4;
+}
+
+.main {
+    padding: 20px;
+
+
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #FFFFFF;
+    }
+}
+
+.panels {
+    margin-bottom: 20px;
+}
+
+.pages-add {
+    width: 500px;
+    padding: 20px;
+    float: left;
+
+    background: #FFFFFF;
+    border-radius: 6px;
+
+    h2 {
+        font-size: 1.25em;
+    }
+
+    p {
+        font-style: italic;
+        color: #555555;
+    }
+}
+
+.bannedstrings-create {
+    width: 500px;
+    padding: 20px;
+    float: right;
+
+    background: #FFFFFF;
+    border-radius: 6px;
+
+    h2 {
+        font-size: 1.25em;
+    }
+
+    p {
+        font-style: italic;
+        color: #555555;
+    }
+}
+
+.forbidden-post {
+    width: 30%;
+    float: left;
+    margin: 0 10px 15px 0;
+    height: 300px;
+    overflow: auto;
+
+    padding: 20px;
+    background: #FFFFFF;
+    border-radius: 6px;
+}
