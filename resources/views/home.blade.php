@@ -26,7 +26,7 @@
             <article class="forbidden-post media" id="forbidden-post-{{ $forbiddenPost->id }}">
                 <div class="media-left">
                     <a href="https://facebook.com/{{ $forbiddenPost->facebookPage->fb_id }}" target="_blank">
-                        <img class="media-object" src="http://graph.facebook.com/{{ $forbiddenPost->facebookPage->fb_id }}/picture?type=square"
+                        <img class="media-object" src="https://graph.facebook.com/{{ $forbiddenPost->facebookPage->fb_id }}/picture?type=square"
                              alt="{{ $forbiddenPost->facebookPage->name }}">
                     </a>
                 </div>
