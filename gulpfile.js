@@ -25,19 +25,20 @@ elixir(function (mix) {
     mix.sass(['main.scss', 'auth.scss', 'helpers.scss'], 'public/css/auth.css');
     mix.sass(['main.scss', 'app.scss', 'helpers.scss'], 'public/css/app.css');
 
-    mix.coffee(['main.coffee', 'auth.coffee'], 'public/js/auth.js');
-    mix.coffee(['main.coffee', 'app.coffee'], 'public/js/app.js');
+    mix.coffee(['main.coffee', 'auth.coffee'], 'public/js/auth_nolibs.js');
+    mix.coffee(['main.coffee', 'app.coffee'], 'public/js/app_nolibs.js');
 
     mix.scripts([
         paths.jquery + "dist/jquery.min.js",
-        paths.bootstrap + "javascripts/bootstrap.js"
+        paths.bootstrap + "javascripts/bootstrap.js",
+        './public/js/auth_nolibs.js'
     ], 'public/js/auth.js');
 
     mix.scripts([
         paths.jquery + "dist/jquery.min.js",
-        paths.bootstrap + "javascripts/bootstrap.js"
+        paths.bootstrap + "javascripts/bootstrap.js",
+        './public/js/app_nolibs.js'
     ], 'public/js/app.js');
 
-    mix.version(['css/app.css', 'js/app.js', 'css/auth.css', 'js/auth.js'])
-
+    mix.version(['css/app.css', 'js/app.js', 'css/auth.css', 'js/auth.js']);
 });

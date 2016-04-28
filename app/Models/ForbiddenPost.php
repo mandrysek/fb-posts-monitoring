@@ -2,10 +2,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 
 class ForbiddenPost extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'forbidden_posts';
 
     protected $fillable = [
@@ -13,9 +16,8 @@ class ForbiddenPost extends Model
     ];
 
     protected $dates = [
-        'created_time',
+        'deleted_at', 'created_time',
     ];
-
 
     public function facebookPage()
     {

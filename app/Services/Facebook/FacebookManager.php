@@ -279,7 +279,7 @@ class FacebookManager
             foreach ($pagesChunk as $page)
             {
                 $pages[$page->fb_id] = $page->id;
-                $lastPost = $page->forbiddenPosts()->orderBy('created_time', 'desc')->first();
+                $lastPost = $page->forbiddenPosts()->withTrashed()->orderBy('created_time', 'desc')->first();
 
                 if ($lastPost instanceof ForbiddenPost)
                 {

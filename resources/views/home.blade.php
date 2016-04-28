@@ -23,7 +23,7 @@
 
     <div class="forbidden-posts">
         @foreach($forbiddenPosts as $forbiddenPost)
-            <article class="forbidden-post media">
+            <article class="forbidden-post media" id="forbidden-post-{{ $forbiddenPost->id }}">
                 <div class="media-left">
                     <a href="https://facebook.com/{{ $forbiddenPost->facebookPage->fb_id }}" target="_blank">
                         <img class="media-object" src="http://graph.facebook.com/{{ $forbiddenPost->facebookPage->fb_id }}/picture?type=square"
@@ -46,6 +46,12 @@
                     @foreach(\GuzzleHttp\json_decode($forbiddenPost->banned_found) as $bannedString)
                         <span class="label label-danger">{{ $bannedString }}</span>
                     @endforeach
+
+                    <form method="post" action="{{ route('deleteForbiddenPost') }}" class="forbidden-post-delete">
+                        {!! csrf_field() !!} {!! method_field('delete') !!}
+                        <input type="hidden" name="id" value="{{ $forbiddenPost->id }}" />
+                        <button type="submit" class="btn btn-success">Post is okay!</button>
+                    </form>
                 </div>
             </article>
         @endforeach

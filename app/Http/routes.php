@@ -11,6 +11,7 @@ Route::get('unauthorized', ['as' => 'auth.unauthorized', 'uses' => 'Auth\AuthCon
 Route::group(['middleware' => 'auth'], function ()
 {
     Route::get('/', ['as' => 'home', 'uses' => 'HomeController@index']);
+    Route::delete('/', ['as' => 'deleteForbiddenPost', 'uses' => 'HomeController@deleteForbiddenPost']);
 
     Route::post('pages/add', ['as' => 'pages.add', 'uses' => 'PagesController@add']);
     Route::post('banned-strings/store', ['as' => 'bannedStrings.store', 'uses' => 'BannedStringsController@store']);

@@ -17,4 +17,14 @@ class HomeController extends Controller
 
         return view('home', compact('forbiddenPosts'));
     }
+    
+    public function deleteForbiddenPost(Request $request)
+    {
+        if ($request->ajax())
+        {
+            return ['deleted' => ForbiddenPost::destroy($request->get('id'))];
+        }
+
+        return redirect('/');
+    }
 }
