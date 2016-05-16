@@ -13,7 +13,7 @@ class AddInstagramToUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->unsignedBigInteger('in_id')->unique()->after('fb_token_exp');
+            $table->unsignedBigInteger('in_id')->nullable()->unique()->after('fb_token_exp');
             $table->text('in_token')->nullable()->after('in_id');
         });
     }
