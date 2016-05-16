@@ -2,6 +2,7 @@
 namespace App\Services\Facebook;
 
 use App\Models\FacebookPage;
+use App\Models\FacebookPost;
 use App\Models\ForbiddenPost;
 use App\Models\User;
 use Carbon\Carbon;
@@ -36,6 +37,14 @@ class FacebookManager
             'http_client_handler'     => new GuzzleHttpClient(),
             'persistent_data_handler' => new PersistentDataHandler(),
         ]);
+    }
+
+    /**
+     * @return Facebook
+     */
+    public function getInstance()
+    {
+        return $this->fb;
     }
 
     private function getAppAccessToken()
@@ -190,7 +199,7 @@ class FacebookManager
         }
     }
 
-    public function readFacebookPagesFromCsv($csvFilePath, $accessToken)
+    public function readFacebookPagesFromCsvByLink($csvFilePath, $accessToken)
     {
         $facebookPagesRequests = [];
         $pageIdentifiers = [];
@@ -226,8 +235,12 @@ class FacebookManager
             fclose($handle);
         }
 
-        $requestsChunks = array_chunk($facebookPagesRequests, 50);
+        return $this->loadFacebookPages($facebookPagesRequests, $accessToken);
+    }
 
+    public function loadFacebookPages($requests, $accessToken)
+    {
+        $requestsChunks = array_chunk($requests, 50);
         try
         {
             $facebookPages = [];
@@ -259,16 +272,38 @@ class FacebookManager
             return FacebookPage::insert($facebookPages);
         } catch (FacebookResponseException $e)
         {
-            return ($e);
+            \Log::warning("Pages loading error", [
+                'code'    => $e->getCode(),
+                'message' => $e->getMessage(),
+            ]);
+
+            return false;
         } catch (FacebookSDKException $e)
         {
-            return ($e);
+            \Log::warning("Pages loading error", [
+                'code'    => $e->getCode(),
+                'message' => $e->getMessage(),
+            ]);
+
+            return false;
         }
     }
 
     public function detectForbiddenPosts($bannedStrings, $accessToken)
     {
         $pagesChunks = FacebookPage::all()->chunk(50);
+
+        $posts = FacebookPost::select('fb_id')->get();
+        $allPostsIds = [];
+        foreach ($posts as $post)
+        {
+            $allPostsIds[] = strval($post->fb_id);
+        }
+        $posts = ForbiddenPost::select('fb_id')->get();
+        foreach ($posts as $post)
+        {
+            $allPostsIds[] = strval($post->fb_id);
+        }
 
         foreach ($pagesChunks as $pagesChunk)
         {
@@ -279,18 +314,36 @@ class FacebookManager
             foreach ($pagesChunk as $page)
             {
                 $pages[$page->fb_id] = $page->id;
-                $lastPost = $page->forbiddenPosts()->withTrashed()->orderBy('created_time', 'desc')->first();
+                $allLastPost = $page->allPosts()->withTrashed()->orderBy('created_time', 'desc')->first();
+                $forLastPost = $page->forbiddenPosts()->withTrashed()->orderBy('created_time', 'desc')->first();
 
-                if ($lastPost instanceof ForbiddenPost)
+                if (($allLastPost instanceof FacebookPost) && ($forLastPost instanceof ForbiddenPost))
                 {
-                    $since = '&since='.$lastPost->created_time->getTimestamp();
+                    $lastPost = $allLastPost->created_time->gt($forLastPost->created_time) ? $allLastPost : $forLastPost;
+                }
+                elseif ($allLastPost instanceof FacebookPost)
+                {
+                    $lastPost = $allLastPost;
+                }
+                elseif ($forLastPost instanceof ForbiddenPost)
+                {
+                    $lastPost = $forLastPost;
                 }
                 else
                 {
-                    $since = null;
+                    $lastPost = false;
                 }
 
-                $requests[] = $this->fb->request("GET", $page->fb_id.'/posts?fields=message,permalink_url,created_time,from&limit=25' . $since, [], $accessToken);
+                if ($lastPost === false)
+                {
+                    $since = null;
+                }
+                else
+                {
+                    $since = '&since='.$lastPost->created_time->getTimestamp();
+                }
+
+                $requests[] = $this->fb->request("GET", $page->fb_id.'/posts?fields=message,permalink_url,created_time,from&limit=25'.$since, [], $accessToken);
             }
 
             try
@@ -298,6 +351,7 @@ class FacebookManager
                 $batchResponses = $this->fb->sendBatchRequest($requests, $accessToken);
 
                 $forbiddenPosts = [];
+                $allPosts = [];
                 foreach ($batchResponses->getDecodedBody() as $batchResponse)
                 {
                     $responseBody = \GuzzleHttp\json_decode($batchResponse['body'], true);
@@ -308,34 +362,74 @@ class FacebookManager
 
                         foreach ($data as $post)
                         {
+                            $explodedId = explode('_', $post['id']);
+                            $postId = $explodedId[1];
+
+                            if (!isset($pages[$explodedId[0]]) || in_array($postId, $allPostsIds))
+                            {
+                                continue;
+                            }
+
+                            $pageId = $pages[$explodedId[0]];
+
                             $stringsFound = [];
 
                             if (isset($post['message']))
                             {
                                 foreach ($bannedStrings as $bannedString)
                                 {
-                                    if (strpos($post['message'], $bannedString->value) !== false)
+                                    $foundString = strpos($post['message'], $bannedString->value) !== false;
+
+                                    if ($foundString)
                                     {
-                                        $stringsFound[] = $bannedString->value;
+                                        $parents = $bannedString->parents;
+                                        if ($parents->isEmpty())
+                                        {
+                                            $stringsFound[] = $bannedString->value;
+                                        }
+                                        else
+                                        {
+                                            $found = [$bannedString->value];
+                                            foreach ($parents as $parent)
+                                            {
+                                                if (strpos($post['message'], $parent->value) !== false)
+                                                {
+                                                    $found[] = $parent->value;
+                                                }
+                                            }
+                                            if ($found > 1)
+                                            {
+                                                array_merge($stringsFound, $found);
+                                            }
+                                        }
                                     }
                                 }
                             }
 
-                            $explodedId = explode('_', $post['id']);
-
-                            if (!empty($stringsFound) && isset($pages[$explodedId[0]]))
+                            $now = new Carbon();
+                            if (!empty($stringsFound))
                             {
-
-                                $now = new Carbon();
                                 $forbiddenPosts[] = [
-                                    'fb_page_id'    => $pages[$explodedId[0]],
-                                    'fb_id'         => $explodedId[1],
+                                    'fb_page_id'    => $pageId,
+                                    'fb_id'         => $postId,
                                     'message'       => \GuzzleHttp\json_encode($post['message']),
                                     'permalink_url' => $post['permalink_url'],
                                     'created_time'  => (new Carbon($post['created_time']))->setTimezone(config('app.timezone')),
                                     'created_at'    => $now,
                                     'updated_at'    => $now,
                                     'banned_found'  => \GuzzleHttp\json_encode($stringsFound),
+                                ];
+                            }
+                            else
+                            {
+                                $allPosts[] = [
+                                    'fb_page_id'    => $pageId,
+                                    'fb_id'         => $postId,
+                                    'message'       => isset($post['message']) ? \GuzzleHttp\json_encode($post['message']) : '',
+                                    'permalink_url' => $post['permalink_url'],
+                                    'created_time'  => (new Carbon($post['created_time']))->setTimezone(config('app.timezone')),
+                                    'created_at'    => $now,
+                                    'updated_at'    => $now,
                                 ];
                             }
                         }
@@ -345,7 +439,9 @@ class FacebookManager
                         \Log::warning("Detection - Batch Response", $responseBody);
                     }
                 }
+
                 $inserted = ForbiddenPost::insert($forbiddenPosts);
+                $insertedAll = FacebookPost::insert($allPosts);
             } catch (FacebookResponseException $e)
             {
                 \Log::warning("Detection - Batch Request", $e->getMessage());

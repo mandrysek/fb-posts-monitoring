@@ -10,6 +10,9 @@ Route::get('unauthorized', ['as' => 'auth.unauthorized', 'uses' => 'Auth\AuthCon
 
 Route::group(['middleware' => 'auth'], function ()
 {
+    Route::get('instagram-login', ['as' => 'auth.instagram.login', 'uses' => 'Auth\AuthController@instagram']);
+    Route::get('instagram-callback', ['as' => 'auth.instagram.callback', 'uses' => 'Auth\AuthController@instagramCallback']);
+
     Route::get('/', ['as' => 'home', 'uses' => 'HomeController@index']);
     Route::delete('/', ['as' => 'deleteForbiddenPost', 'uses' => 'HomeController@deleteForbiddenPost']);
 

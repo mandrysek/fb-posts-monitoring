@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Console\Commands\DetectForbiddenPosts;
+use App\Console\Commands\FillBannedStringsCombs;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 

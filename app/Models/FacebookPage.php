@@ -17,4 +17,8 @@ class FacebookPage extends Model
     {
         return $this->hasMany(ForbiddenPost::class, 'fb_page_id', 'id');
     }
+
+    public function allPosts() {
+        return $this->hasMany(FacebookPost::class, 'fb_page_id', 'id');
+    }
 }

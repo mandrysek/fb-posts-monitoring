@@ -1,9 +1,9 @@
 @extends('layouts.auth')
 @section('content')
-    First you need too login to your facebook account
+    First you need too login to your Instagram account
 
     <a href="{{ $loginUrl }}" class="btn btn-default btn-info">
-        <i class="fa fa-facebook"></i> Login to Facebook
+        <i class="fa fa-instagram"></i> Login to Instagram
     </a>
 
     @if(!empty($errors->all()))
