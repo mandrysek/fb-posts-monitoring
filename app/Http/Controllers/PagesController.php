@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\FacebookPage;
 use App\Services\Facebook\FacebookManager;
 use Illuminate\Http\Request;
 
@@ -29,5 +30,31 @@ class PagesController extends Controller
         session()->flash('success_message', 'Words were added.');
 
         return redirect()->route('home');
+    }
+
+    public function index()
+    {
+        $pages = FacebookPage::withTrashed()->get();
+
+        return view('pages', compact('pages'));
+    }
+
+    public function delete(Request $request)
+    {
+        if ($request->ajax())
+        {
+            return ['deleted' => FacebookPage::destroy($request->get('id'))];
+        }
+
+        return redirect('/');
+    }
+
+    public function restore(Request $request) {
+        if ($request->ajax())
+        {
+            return ['restored' => FacebookPage::withTrashed()->where('id', $request->get('id'))->restore()];
+        }
+
+        return redirect('/');
     }
 }

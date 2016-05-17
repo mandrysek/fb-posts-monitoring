@@ -29,4 +29,21 @@ class HomeController extends Controller
 
         return redirect('/');
     }
+
+    public function trash() {
+        $deletedPosts = ForbiddenPost::onlyTrashed()->orderBy('created_time', 'desc')->get();
+
+        return view('trash', compact('deletedPosts'));
+    }
+
+    public function restorePost(Request $request) {
+        if ($request->ajax())
+        {
+            return ['restored' => ForbiddenPost::withTrashed()->where('id', $request->get('id'))->restore()];
+        }
+
+        return redirect('/');
+    }
+    
+    
 }

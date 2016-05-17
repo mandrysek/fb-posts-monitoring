@@ -3,13 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class FacebookPage extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'fb_pages';
 
     protected $fillable = [
         'fb_id', 'name',
+    ];
+
+    protected $dates = [
+        'deleted_at'
     ];
 
 

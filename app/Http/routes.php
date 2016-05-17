@@ -15,6 +15,12 @@ Route::group(['middleware' => 'auth'], function ()
 
     Route::get('/', ['as' => 'home', 'uses' => 'HomeController@index']);
     Route::delete('/', ['as' => 'deleteForbiddenPost', 'uses' => 'HomeController@deleteForbiddenPost']);
+    Route::get('trash', ['as' => 'trash', 'uses' => 'HomeController@trash']);
+    Route::put('trash/restore', ['as' => 'trash.restore', 'uses' => 'HomeController@restorePost']);
+    Route::get('pages', ['as' => 'pages', 'uses' => 'PagesController@index']);
+    
+    Route::delete('pages/delete', ['as' => 'pages.delete', 'uses' => 'PagesController@delete']);
+    Route::put('pages/restore', ['as' => 'pages.restore', 'uses' => 'PagesController@restore']);
 
     Route::post('pages/add', ['as' => 'pages.add', 'uses' => 'PagesController@add']);
     Route::post('banned-strings/store', ['as' => 'bannedStrings.store', 'uses' => 'BannedStringsController@store']);
