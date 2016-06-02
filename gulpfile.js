@@ -19,7 +19,7 @@ var paths = {
 
 elixir(function (mix) {
 
-    mix.copy(paths.bootstrap + 'fonts/bootstrap/**', 'public/build/fonts');
+    mix.copy(paths.bootstrap + 'fonts/bootstrap/**', 'public/build/fonts/bootstrap');
     mix.copy(paths.fontAwesome + 'fonts/**', 'public/build/fonts');
 
     mix.sass(['main.scss', 'auth.scss', 'helpers.scss'], 'public/css/auth.css');

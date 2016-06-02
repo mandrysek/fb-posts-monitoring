@@ -43,7 +43,7 @@ class PagesController extends Controller
     {
         if ($request->ajax())
         {
-            return ['deleted' => FacebookPage::destroy($request->get('id'))];
+            return ['done' => FacebookPage::destroy($request->get('id'))];
         }
 
         return redirect('/');
@@ -52,7 +52,7 @@ class PagesController extends Controller
     public function restore(Request $request) {
         if ($request->ajax())
         {
-            return ['restored' => FacebookPage::withTrashed()->where('id', $request->get('id'))->restore()];
+            return ['done' => FacebookPage::withTrashed()->where('id', $request->get('id'))->restore()];
         }
 
         return redirect('/');

@@ -23,6 +23,7 @@ class User extends Authenticatable
 
     protected $casts = [
         'authorized' => 'boolean',
+        'client'     => 'boolean',
     ];
 
     /**
