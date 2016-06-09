@@ -52,6 +52,7 @@
                         @endforeach
 
                         <div class="post-buttons">
+                            <a href="{{ route('comments.show', $post->id) }}" class="btn btn-info comments-show">{{ $post->comments()->count() }} Comments</a>
 
                             @if($post->state !== "forbidden" && $post->deleted_at === null)
                                 <form method="post" action="{{ route('posts.delete') }}" class="post-delete">

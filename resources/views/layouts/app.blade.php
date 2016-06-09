@@ -18,4 +18,9 @@
 
         @yield('content')
     </div>
+
+    <div class="lightbox">
+        <div class="lightbox-content"></div>
+        <div class="lightbox-loading"><i class="fa fa-spinner"></i></div>
+    </div>
 @stop

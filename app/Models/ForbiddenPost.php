@@ -23,4 +23,8 @@ class ForbiddenPost extends Model
     {
         return $this->belongsTo(FacebookPage::class, 'fb_page_id', 'id');
     }
+
+    public function comments() {
+        return $this->hasMany(Comment::class, 'post_id', 'id')->orderBy('created_at', 'asc');
+    }
 }

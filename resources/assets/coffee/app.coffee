@@ -55,3 +55,49 @@ $(document).on 'submit', '.page-restore', ()->
         window.location.reload()
         true
     false
+
+commentsShow = (href)->
+    $.ajax({
+        url: href
+        beforeSend: ()->
+            $('.lightbox').show()
+            $('.lightbox-loading').show()
+            true
+        method: 'get'
+        dataType: 'html'
+    }).done (response)->
+        $('.lightbox-loading').hide()
+        $('.lightbox-content').html(response).show()
+        true
+    false
+
+$(document).on 'click', '.comments-show', ()->
+    href = $(@).attr 'href'
+    commentsShow href
+
+$(document).on 'submit', '.comments-create', ()->
+    action = $(@).attr 'action'
+    form = @
+
+    $.ajax({
+        url: action
+        data:
+            message: $(form.message).val()
+            last_comment: $(form.last_comment).val()
+        method: 'post'
+        dataType: 'json'
+    }).done (response)->
+        if response.error
+            $('.comments-error').html(response.error.message).show()
+        else
+            $('.comments-error').html("").hide()
+            $(form.last_comment).val(response.last_comment)
+            $(form).parent().children('.comments').append(response.html)
+
+        true
+    false
+
+$(document).on 'click', '.comments-close', ()->
+    $('.lightbox').hide()
+    $('.lightbox-content').html("").hide()
+    false

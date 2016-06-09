@@ -15,6 +15,8 @@ Route::group(['middleware' => 'auth'], function ()
     Route::put('posts/forbid', ['as' => 'posts.forbid', 'uses' => 'ForbiddenPostsController@forbid']);
     Route::delete('posts', ['as' => 'posts.delete', 'uses' => 'ForbiddenPostsController@delete']);
 
+    Route::get('comments/{forbiddenPost}', ['as' => 'comments.show', 'uses' => 'CommentsController@show']);
+    Route::post('comments/{forbiddenPost}', ['as' => 'comments.create', 'uses' => 'CommentsController@create']);
 
     Route::group(['middleware' => 'notClient'], function ()
     {
