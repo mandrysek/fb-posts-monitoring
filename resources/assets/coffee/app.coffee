@@ -91,6 +91,8 @@ $(document).on 'submit', '.comments-create', ()->
             $('.comments-error').html(response.error.message).show()
         else
             $('.comments-error').html("").hide()
+            if $(form.last_comment).val() == 0
+                $(form).parent().children('.comments').html("")
             $(form.last_comment).val(response.last_comment)
             $(form).parent().children('.comments').append(response.html)
 
