@@ -10,8 +10,9 @@ use App\Http\Requests;
 
 class CommentsController extends Controller
 {
-    public function show(ForbiddenPost $forbiddenPost, Request $request)
+    public function show($forbiddenPost, Request $request)
     {
+        $forbiddenPost = ForbiddenPost::withTrashed()->findOrFail($forbiddenPost);
         if ($request->ajax())
         {
 
@@ -21,8 +22,9 @@ class CommentsController extends Controller
         return redirect('/');
     }
 
-    public function create(ForbiddenPost $forbiddenPost, Request $request)
+    public function create($forbiddenPost, Request $request)
     {
+        $forbiddenPost = ForbiddenPost::withTrashed()->findOrFail($forbiddenPost);
         if ($request->ajax())
         {
             $validator = \Validator::make($request->all(), [
